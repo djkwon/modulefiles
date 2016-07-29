@@ -1,0 +1,78 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## freesurfer modulefile
+##
+
+set version "5.3.0"
+set package freesurfer
+set PACKAGE FreeSurfer
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+conflict freesurfer
+prereq fsl
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv FREESURFER_HOME $pkghome
+#puts stderr $env(FREESURFER_HOME)
+
+if {$mode == "load"} {
+  if {[string compare $env(FREESURFER_HOME) ""] == 0} {
+    puts stderr "ERROR: must set 'FREESURFER_HOME' environment variable to $PACKAGE install directory"
+    exit 1
+  }
+
+  if {$shelltype == "sh"} {
+    set bashfile "$pkghome/SetUpFreeSurfer.sh"
+    puts "export FS_OVERRIDE=1 && export FREESURFER_HOME=$pkghome && source $bashfile ;"
+  } else {
+    set tcshfile "$pkghome/SetUpFreeSurfer.csh"
+    puts "setenv FS_OVERRIDE 1 && setenv FREESURFER_HOME $pkghome && source $tcshfile ;"
+  }
+}
+if {$mode == "remove"} {
+  unsetenv FREESURFER_HOME
+  unsetenv FSFAST_HOME
+  unsetenv FSF_OUTPUT_FORMAT
+  unsetenv SUBJECTS_DIR
+  unsetenv MNI_DIR
+  unsetenv FSL_DIR
+
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/bin
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/fsfast/bin
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/tktools
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/mni/bin
+}

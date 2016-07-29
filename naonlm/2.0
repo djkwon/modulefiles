@@ -1,0 +1,82 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## naonlm modulefile
+##
+
+set version "2.0"
+set package naonlm
+set PACKAGE NAONLM
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+conflict naonlm
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv NAONLM_DIR $pkghome
+#puts stderr $env(NAONLM_DIR)
+
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+}
+
+#if {$mode == "load"} {
+#  if {[string compare $env(NAONLM_DIR) ""] == 0} {
+#    puts stderr "ERROR: must set 'NAONLM_DIR' environment variable to $PACKAGE install directory"
+#    exit 1
+#  }
+#
+#  if {$shelltype == "sh"} {
+#    puts "function naonlm()\
+#{\
+#  if \[ ! -d $\{NAONLM_DIR\} \]; then\
+#    echo \"ERROR: \'NAONLM_DIR\' is not defined.\";\
+#    return;\
+#  fi;\
+#\
+#  local inp=$\{1\};\
+#  local out=$\{2\};\
+#\
+#  $\{NAONLM_DIR\}/bin/naonlm3d.sh $\{inp\} $\{out\};\
+#};"
+#    puts "export -f naonlm;"
+#  }
+#}
+#if {$mode == "remove"} {
+#  if {$shelltype == "sh"} {
+#    puts "unset -f naonlm;"
+#  }
+#}
+

@@ -1,0 +1,73 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## lwdp modulefile
+##
+
+set version "r16"
+set package lwdp
+set PACKAGE LWDP
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv LWDP_DIR $pkghome
+#puts stderr $env(LWDP_DIR)
+
+if {$mode == "load"} {
+  if {[string compare $env(LWDP_DIR) ""] == 0} {
+    puts stderr "ERROR: must set 'LWDP_DIR' environment variable to $PACKAGE install directory"
+    exit 1
+  }
+
+  if {$shelltype == "sh"} {
+    puts "source $pkghome/lwdp.sh;"
+  }
+}
+if {$mode == "remove"} {
+  if {$shelltype == "sh"} {
+    puts "unset -f LWDP_check_file_compression;"
+    puts "unset -f LWDP_get_override_file_path;"
+    puts "unset -f LWDP_get_override_file;"
+    puts "unset -f LWDP_get_override_files_list;"
+    puts "unset -f LWDP_needs_update;"
+    puts "unset -f LWDP_lockfile_create;"
+    puts "unset -f LWDP_lockfile_delete;"
+    puts "unset -f LWDP_needs_update_and_lock;"
+  }
+
+
+}
+

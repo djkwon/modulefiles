@@ -1,0 +1,5 @@
+#%Module1.0#####################################################################
+##
+## version file for miniconda
+##
+set ModulesVersion  "3.16.0"

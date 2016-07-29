@@ -1,0 +1,65 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## matlab modulefile
+##
+
+set version "R2008b"
+set package matlab
+set PACKAGE MATLAB
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+conflict matlab
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+}
+
+# setup mcr
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel]} {
+  set mcrroot /usr/local/tools/$package/$version/$distrel
+  setenv MCRROOT $mcrroot
+  setenv XAPPLRESDIR $mcrroot/X11/app-defaults
+  prepend-path LD_LIBRARY_PATH $mcrroot/runtime/glnxa64
+  prepend-path LD_LIBRARY_PATH $mcrroot/bin/glnxa64
+  prepend-path LD_LIBRARY_PATH $mcrroot/sys/os/glnxa64
+  prepend-path LD_LIBRARY_PATH $mcrroot/sys/java/jre/glnxa64/jre/lib/amd64/native_threads
+  prepend-path LD_LIBRARY_PATH $mcrroot/sys/java/jre/glnxa64/jre/lib/amd64/server
+  prepend-path LD_LIBRARY_PATH $mcrroot/sys/java/jre/glnxa64/jre/lib/amd64/client
+  prepend-path LD_LIBRARY_PATH $mcrroot/sys/java/jre/glnxa64/jre/lib/amd64
+}
+

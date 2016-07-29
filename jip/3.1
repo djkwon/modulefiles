@@ -1,0 +1,58 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## jip modulefile
+##
+
+set version "3.1"
+set package jip
+set PACKAGE JIP
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv JIP_HOME $pkghome
+
+set-alias jip {$JIP_HOME/bin/jip}
+set-alias xd {$JIP_HOME/bin/display}
+set-alias align {$JIP_HOME/bin/align}
+set-alias glm {$JIP_HOME/bin/glm}
+set-alias pet {$JIP_HOME/bin/pet}
+set-alias rem {$JIP_HOME/bin/rem}
+
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+}
+

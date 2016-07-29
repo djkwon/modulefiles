@@ -1,0 +1,28 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## sibis-website-pelican modulefile
+##
+
+set version "1.0.0"
+set package sibis-website-pelican
+set PACKAGE sibis-website-pelican
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+#set pkghome /usr/local/tools/$package/$version/$distrel
+
+conflict sibis-website-pelican
+
+set mode [module-info mode]
+
+if {$mode == "load"} {
+  if {![is-loaded miniconda]} {
+    module load miniconda
+  }
+  puts "source activate sibis-website;"
+}
+if {$mode == "remove"} {
+  puts "source activate root;"
+}
+

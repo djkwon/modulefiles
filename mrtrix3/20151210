@@ -1,0 +1,72 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## mrtrix3 modulefile
+##
+
+set version "20151210"
+set package mrtrix3
+set PACKAGE MRtrix3
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+conflict mrtrix3
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv MRTRIX3_DIR $pkghome
+#puts stderr $env(MRTRIX3_DIR)
+
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+}
+
+#set-alias mrtrix3 {${MRTRIX3_DIR}/bin/$*}
+if {$mode == "load"} {
+  if {[string compare $env(MRTRIX3_DIR) ""] == 0} {
+    puts stderr "ERROR: must set 'MRTRIX3_DIR' environment variable to $PACKAGE install directory"
+    exit 1
+  }
+
+  if {$shelltype == "sh"} {
+    puts "function mrtrix3() { $\{MRTRIX3_DIR\}/bin/$*; };"
+    puts "export -f mrtrix3;"
+  }
+}
+if {$mode == "remove"} {
+  if {$shelltype == "sh"} {
+    puts "unset -f mrtrix3;"
+  }
+}
+

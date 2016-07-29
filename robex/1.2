@@ -1,0 +1,90 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## robex modulefile
+##
+
+set version "1.2"
+set package robex
+set PACKAGE ROBEX
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+conflict robex
+prereq cmtk
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv ROBEX_DIR $pkghome
+#puts stderr $env(ROBEX_DIR)
+
+if {$mode == "load"} {
+  if {[string compare $env(ROBEX_DIR) ""] == 0} {
+    puts stderr "ERROR: must set 'ROBEX_DIR' environment variable to $PACKAGE install directory"
+    exit 1
+  }
+
+  if {$shelltype == "sh"} {
+    puts "function robex_strip()\
+{\
+  if \[ ! -d $\{ROBEX_DIR\} \]; then\
+    echo \"ERROR: \'ROBEX_DIR\' is not defined.\";\
+    return;\
+  fi;\
+\
+  local inp=$\{1\};\
+  local out=$\{2\};\
+  local msk=$\{3\};\
+\
+  local tmpdir=$\(mktemp -d\);\
+  cmtk convertx $\{inp\} $\{tmpdir\}/input.nii;\
+\
+  pushd $\{tmpdir\};\
+  ln -s $\{ROBEX_DIR\}/ref_vols .;\
+  ln -s $\{ROBEX_DIR\}/dat .;\
+  $\{ROBEX_DIR\}/ROBEX input.nii.gz brain.nii mask.nii;\
+  popd;\
+  cmtk convertx $\{tmpdir\}/brain.nii $\{out\};\
+  cmtk convertx $\{tmpdir\}/mask.nii $\{msk\};\
+  rm -rf $\{tmpdir\};\
+};"
+    puts "export -f robex_strip;"
+  }
+}
+if {$mode == "remove"} {
+  if {$shelltype == "sh"} {
+    puts "unset -f robex_strip;"
+  }
+}
+
