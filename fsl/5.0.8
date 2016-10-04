@@ -50,6 +50,7 @@ setenv FSLDIR $pkghome
 
 if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
   prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+  prepend-path LD_LIBRARY_PATH /usr/local/tools/$package/$version/$distrel/bin
 }
 
 #set-alias fsl {${FSLDIR}/bin/$*}
@@ -70,6 +71,8 @@ if {$mode == "load"} {
     puts "function fsl() { $\{FSLDIR\}/bin/$*; };"
     puts "export -f fsl;"
   }
+
+  setenv FSLWISH $pkghome/bin/fslwish
 }
 if {$mode == "remove"} {
   if {$shelltype == "sh"} {

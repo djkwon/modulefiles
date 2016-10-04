@@ -1,12 +1,12 @@
 #%Module1.0#####################################################################
 # $Id: $
 ##
-## fsl modulefile
+## mrtrix3 modulefile
 ##
 
-set version "5.0.9"
-set package fsl
-set PACKAGE FSL
+set version "current"
+set package mrtrix3
+set PACKAGE MRtrix3
 set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
 set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
 set distrel $dist$rel
@@ -18,7 +18,7 @@ set pkghome /usr/local/tools/$package/$version/$distrel
 #puts stderr "distrel = $distrel"
 #puts stderr "pkghome = $pkghome"
 
-conflict fsl
+conflict mrtrix3
 
 set mode [module-info mode]
 set shelltype [module-info shelltype]
@@ -45,37 +45,28 @@ module-whatis "Set up environment for $package version $version"
 
 global env
 
-setenv FSLDIR $pkghome
-#puts stderr $env(FSLDIR)
+setenv MRTRIX3_DIR $pkghome
+#puts stderr $env(MRTRIX3_DIR)
 
 if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
   prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
-  prepend-path LD_LIBRARY_PATH /usr/local/tools/$package/$version/$distrel/bin
 }
 
-#set-alias fsl {${FSLDIR}/bin/$*}
+#set-alias mrtrix3 {${MRTRIX3_DIR}/bin/$*}
 if {$mode == "load"} {
-  if {[string compare $env(FSLDIR) ""] == 0} {
-    puts stderr "ERROR: must set 'FSLDIR' environment variable to $PACKAGE install directory"
+  if {[string compare $env(MRTRIX3_DIR) ""] == 0} {
+    puts stderr "ERROR: must set 'MRTRIX3_DIR' environment variable to $PACKAGE install directory"
     exit 1
   }
 
   if {$shelltype == "sh"} {
-    set FSL_SH "$pkghome/etc/fslconf/fsl.sh"
-    if {![file exists $FSL_SH]} {
-      puts stderr "ERROR: FSL configuration script $FSL_SH does not exist." 
-      exit 1
-    }
-    puts "source $FSL_SH;"
-
-    puts "function fsl() { $\{FSLDIR\}/bin/$*; };"
-    puts "export -f fsl;"
+    puts "function mrtrix3() { $\{MRTRIX3_DIR\}/bin/$*; };"
+    puts "export -f mrtrix3;"
   }
-
-  setenv FSLWISH $pkghome/bin/fslwish
 }
 if {$mode == "remove"} {
   if {$shelltype == "sh"} {
-    puts "unset -f fsl;"
+    puts "unset -f mrtrix3;"
   }
 }
+
