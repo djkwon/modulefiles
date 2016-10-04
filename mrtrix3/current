@@ -10,7 +10,7 @@ set PACKAGE MRtrix3
 set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
 set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
 set distrel $dist$rel
-set pkghome /usr/local/tools/$package/$version/$distrel
+set pkghome /usr/local/tools/$package/$version/$distrel/release
 
 #puts stderr "package = $package"
 #puts stderr "PACKAGE = $PACKAGE"
