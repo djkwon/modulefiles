@@ -48,8 +48,8 @@ global env
 setenv MRTRIX3_DIR $pkghome
 #puts stderr $env(MRTRIX3_DIR)
 
-if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
-  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/release/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/release/bin
 }
 
 #set-alias mrtrix3 {${MRTRIX3_DIR}/bin/$*}
