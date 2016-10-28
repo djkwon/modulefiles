@@ -1,12 +1,12 @@
 #%Module1.0#####################################################################
 # $Id: $
 ##
-## mrtrix3 modulefile
+## freesurfer modulefile
 ##
 
-set version "current"
-set package mrtrix3
-set PACKAGE MRtrix3
+set version "5.3.0-hcp"
+set package freesurfer
+set PACKAGE FreeSurfer
 set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
 set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
 set distrel $dist$rel
@@ -18,7 +18,8 @@ set pkghome /usr/local/tools/$package/$version/$distrel
 #puts stderr "distrel = $distrel"
 #puts stderr "pkghome = $pkghome"
 
-conflict mrtrix3
+conflict freesurfer
+prereq fsl
 
 set mode [module-info mode]
 set shelltype [module-info shelltype]
@@ -45,40 +46,33 @@ module-whatis "Set up environment for $package version $version"
 
 global env
 
-setenv MRTRIX3_DIR $pkghome
-#puts stderr $env(MRTRIX3_DIR)
+setenv FREESURFER_HOME $pkghome
+#puts stderr $env(FREESURFER_HOME)
 
-if {[file isdirectory /usr/local/tools/$package/$version/$distrel/release/bin]} {
-  prepend-path PATH /usr/local/tools/$package/$version/$distrel/release/bin
-}
-if {[file isdirectory /usr/local/tools/$package/$version/$distrel/scripts]} {
-  prepend-path PATH /usr/local/tools/$package/$version/$distrel/scripts
-}
-
-#set-alias mrtrix3 {${MRTRIX3_DIR}/bin/$*}
 if {$mode == "load"} {
-  if {[string compare $env(MRTRIX3_DIR) ""] == 0} {
-    puts stderr "ERROR: must set 'MRTRIX3_DIR' environment variable to $PACKAGE install directory"
+  if {[string compare $env(FREESURFER_HOME) ""] == 0} {
+    puts stderr "ERROR: must set 'FREESURFER_HOME' environment variable to $PACKAGE install directory"
     exit 1
   }
 
   if {$shelltype == "sh"} {
-    puts "function mrtrix3()\
-{\
-  if \[ -e $\{MRTRIX3_DIR\}/release/bin/$\{1\} \]; then\
-    $\{MRTRIX3_DIR\}/release/bin/$*;\
-  elif \[ -e $\{MRTRIX3_DIR\}/scripts/$\{1\} \]; then\
-    $\{MRTRIX3_DIR\}/scripts/$*;\
-  else\
-    echo \"ERROR: $\{1\} is not found.\";\
-  fi;\
-};"
-    puts "export -f mrtrix3;"
+    set bashfile "$pkghome/SetUpFreeSurfer.sh"
+    puts "export FS_OVERRIDE=1 && export FREESURFER_HOME=$pkghome && source $bashfile ;"
+  } else {
+    set tcshfile "$pkghome/SetUpFreeSurfer.csh"
+    puts "setenv FS_OVERRIDE 1 && setenv FREESURFER_HOME $pkghome && source $tcshfile ;"
   }
 }
 if {$mode == "remove"} {
-  if {$shelltype == "sh"} {
-    puts "unset -f mrtrix3;"
-  }
-}
+  unsetenv FREESURFER_HOME
+  unsetenv FSFAST_HOME
+  unsetenv FSF_OUTPUT_FORMAT
+  unsetenv SUBJECTS_DIR
+  unsetenv MNI_DIR
+  unsetenv FSL_DIR
 
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/bin
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/fsfast/bin
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/tktools
+  remove-path PATH /usr/local/tools/$package/$version/$distrel/mni/bin
+}

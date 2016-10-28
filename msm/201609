@@ -1,12 +1,12 @@
 #%Module1.0#####################################################################
 # $Id: $
 ##
-## clion modulefile
+## msm modulefile
 ##
 
-set version "2016.2"
-set package clion
-set PACKAGE CLion
+set version "201609"
+set package msm
+set PACKAGE MSM
 set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
 set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
 set distrel $dist$rel
@@ -17,6 +17,8 @@ set pkghome /usr/local/tools/$package/$version/$distrel
 #puts stderr "version = $version"
 #puts stderr "distrel = $distrel"
 #puts stderr "pkghome = $pkghome"
+
+conflict msm
 
 set mode [module-info mode]
 set shelltype [module-info shelltype]
@@ -43,8 +45,10 @@ module-whatis "Set up environment for $package version $version"
 
 global env
 
-if {[file isdirectory $pkghome/bin]} {
-  prepend-path PATH $pkghome/bin
-}
+setenv MSM_DIR $pkghome
+#puts stderr $env(MSM_DIR)
 
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel
+}
 

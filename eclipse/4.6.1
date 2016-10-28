@@ -1,12 +1,12 @@
 #%Module1.0#####################################################################
 # $Id: $
 ##
-## clion modulefile
+## eclipse modulefile
 ##
 
-set version "2016.2"
-set package clion
-set PACKAGE CLion
+set version "4.6.1"
+set package eclipse
+set PACKAGE eclipse
 set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
 set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
 set distrel $dist$rel
@@ -43,8 +43,7 @@ module-whatis "Set up environment for $package version $version"
 
 global env
 
-if {[file isdirectory $pkghome/bin]} {
-  prepend-path PATH $pkghome/bin
+if {[file isdirectory $pkghome]} {
+  prepend-path PATH $pkghome
 }
-
 

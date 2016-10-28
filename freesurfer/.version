@@ -2,4 +2,4 @@
 ##
 ## version file for freesurfer
 ##
-set ModulesVersion  "5.3.0"
+set ModulesVersion  "5.3.0-hcp"
