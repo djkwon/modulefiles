@@ -1,0 +1,102 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## cmtk modulefile
+##
+
+set version "r5434"
+set package cmtk
+set PACKAGE CMTK
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv CMTKDIR $pkghome
+#puts stderr $env(CMTKDIR)
+
+#if {[file exists $env(CMTKDIR)/bin/cmtk]} {
+#  set-alias cmtk {${CMTKDIR}/bin/cmtk $*}
+#} else {
+#  set-alias cmtk {${CMTKDIR}/bin/$*}
+#}
+if {$mode == "load"} {
+  if {[string compare $env(CMTKDIR) ""] == 0} {
+    puts stderr "ERROR: must set 'CMTKDIR' environment variable to $PACKAGE install directory"
+    exit 1
+  }
+
+  if {$shelltype == "sh"} {
+    puts "function cmtk() { $\{CMTKDIR\}/bin/cmtk $*; };"
+    puts "export -f cmtk;"
+  }
+}
+if {$mode == "remove"} {
+  if {$shelltype == "sh"} {
+    puts "unset -f cmtk;"
+  }
+}
+
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+}
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/lib/$package/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/lib/$package/bin
+}
+
+#if {[file isdirectory /usr/local/$package/$version/bin]} {
+#	prepend-path PATH /usr/local/$package/$version/bin
+#}
+#if {[file isdirectory /usr/local/$package/$version/man]} {
+#	prepend-path MANPATH /usr/local/$package/$version/share/man
+#}
+#if {[file isdirectory /usr/local/$package/$version/lib]} {
+#	prepend-path LD_LIBRARY_PATH /usr/local/$package/$version/lib
+#	prepend-path DYLD_LIBRARY_PATH /usr/local/$package/$version/lib
+#	prepend-path CMAKE_LIBRARY_PATH /usr/local/$package/$version/lib
+#}
+## Prepend lib64 after lib, to give lib64 preference
+#if {[file isdirectory /usr/local/$package/$version/lib64]} {
+#	prepend-path LD_LIBRARY_PATH /usr/local/$package/$version/lib64
+#	prepend-path DYLD_LIBRARY_PATH /usr/local/$package/$version/lib64
+#	prepend-path CMAKE_LIBRARY_PATH /usr/local/$package/$version/lib64
+#}
+#if {[file isdirectory /usr/local/$package/$version/include]} {
+#	prepend-path C_INCLUDE_PATH /usr/local/$package/$version/include
+#	prepend-path CXX_INCLUDE_PATH /usr/local/$package/$version/include
+#	prepend-path CMAKE_INCLUDE_PATH /usr/local/$package/$version/include
+#}
+#if {[file isdirectory /usr/local/$package/$version/pkgconfig]} {
+#	prepend-path PKG_CONFIG_PATH /usr/local/$package/$version/pkgconfig
+#}

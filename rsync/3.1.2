@@ -1,0 +1,54 @@
+#%Module1.0#####################################################################
+# $Id: $
+##
+## rsync modulefile
+##
+
+set version "3.1.2"
+set package rsync
+set PACKAGE RSYNC
+set dist [exec lsb_release -i | tr "\t" " " | cut -d " " -f 3]
+set rel  [exec lsb_release -r | tr "\t" " " | cut -d " " -f 2 | cut -d "." -f 1]
+set distrel $dist$rel
+set pkghome /usr/local/tools/$package/$version/$distrel
+
+#puts stderr "package = $package"
+#puts stderr "PACKAGE = $PACKAGE"
+#puts stderr "version = $version"
+#puts stderr "distrel = $distrel"
+#puts stderr "pkghome = $pkghome"
+
+conflict rsync
+
+set mode [module-info mode]
+set shelltype [module-info shelltype]
+
+if {$mode == "load"} {
+  if {[is-loaded $package]} {
+    puts stderr "ERROR: $package is already loaded. Try unload it first."
+    exit 1
+  }
+}
+if {$mode == "remove"} {
+}
+
+if {![file isdirectory $pkghome]} {
+	puts stderr "No installation of $PACKAGE ($version)"
+	exit 1 
+}
+
+proc ModulesHelp { } {
+	puts stderr "\tSet up environment for $package version $version\n"
+}
+
+module-whatis "Set up environment for $package version $version"
+
+global env
+
+setenv RSYNC_DIR $pkghome
+#puts stderr $env(RSYNC_DIR)
+
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
+}
+
