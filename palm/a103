@@ -49,7 +49,7 @@ global env
 setenv PALM_DIR $pkghome
 #puts stderr $env(PALM_DIR)
 
-if {[file isdirectory /usr/local/tools/$package/$version/$distrel]} {
-  prepend-path PATH /usr/local/tools/$package/$version/$distrel
+if {[file isdirectory /usr/local/tools/$package/$version/$distrel/bin]} {
+  prepend-path PATH /usr/local/tools/$package/$version/$distrel/bin
 }
 
