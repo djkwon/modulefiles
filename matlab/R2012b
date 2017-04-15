@@ -61,5 +61,6 @@ if {[file isdirectory /usr/local/tools/$package/$version/$distrel]} {
   prepend-path LD_LIBRARY_PATH $mcrroot/sys/java/jre/glnxa64/jre/lib/amd64/server
   prepend-path LD_LIBRARY_PATH $mcrroot/sys/java/jre/glnxa64/jre/lib/amd64/client
   prepend-path LD_LIBRARY_PATH $mcrroot/sys/java/jre/glnxa64/jre/lib/amd64
+  prepend-path LD_LIBRARY_PATH $mcrroot/sys/opengl/lib/glnxa64
 }
 
